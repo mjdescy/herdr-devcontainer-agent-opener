@@ -15,10 +15,10 @@ main() {
   default_agent="$(read_config_value default_agent)"
   agent="${1:-$default_agent}"; shift || true
   [[ -n "$agent" ]] || die "no agent specified and no default_agent found in $config_file"
-  
+
   # read workspace
   workspace="$(find_workspace_folder)"
-  
+
   # read docker command path
   set_docker_args
 

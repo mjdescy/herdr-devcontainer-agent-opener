@@ -1,7 +1,26 @@
 #!/usr/bin/env bash
 # usage: dc-agent [agent] [agent args...]   (run from the project root)
 set -euo pipefail
-agent="${1:-claude}"; shift || true
+
+config_file="$HOME/.config/herdr-devcontainer-agent-opener/config.toml"
+
+# Print an error message to stderr and abort the script with exit status 1.
+die() {
+  echo "dc-agent: $*" >&2
+  exit 1
+}
+
+# Print the value of default_agent from the config file.
+# Prints an empty string if the file is missing or the key is not set.
+read_default_agent() {
+  [[ -f "$config_file" ]] || return 0
+
+  sed -nE 's/^[[:space:]]*default_agent[[:space:]]*=[[:space:]]*"([^"]*)".*/\1/p' "$config_file" | head -n 1
+}
+
+default_agent="$(read_default_agent)"
+agent="${1:-$default_agent}"; shift || true
+[[ -n "$agent" ]] || die "no agent specified and no default_agent found in $config_file"
 devcontainer up --docker-path podman --workspace-folder . >/dev/null
 HERDR_AGENT="$agent" exec devcontainer exec --docker-path podman \
   --workspace-folder . "$agent" "$@"

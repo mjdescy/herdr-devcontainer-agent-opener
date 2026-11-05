@@ -30,18 +30,18 @@ This script relies on the following tools:
 In a Herdr session, start your devcontainer and agent in a single command like so:
 
 ```bash
-dc-agent opencode
+open-agent-in-devcontainer opencode
 ```
 
 or
 
 ```bash
-dc-agent claude
+open-agent-in-devcontainer claude
 ```
 
 Replace `opencode` or `claude` with the agent TUI command name. 
 
-If no agent name is provided, the `dc-agent` command will run whatever default agent is set in a configuration file. See the "Optional configuration" section below for more details.
+If no agent name is provided, the `open-agent-in-devcontainer` command will run whatever default agent is set in a configuration file. See the "Optional configuration" section below for more details.
 
 ## How it works
 
@@ -60,7 +60,7 @@ docker_path = "podman"
 
 ### `default_agent`
 
-The agent TUI command name to run when `dc-agent` is invoked with no agent name. Setting it allows you to run the `dc-agent` command with no parameters. An agent name given on the command line always takes precedence. If no agent name is given and no `default_agent` is set, `dc-agent` exits with an error.
+The agent TUI command name to run when `open-agent-in-devcontainer` is invoked with no agent name. Setting it allows you to run the `open-agent-in-devcontainer` command with no parameters. An agent name given on the command line always takes precedence. If no agent name is given and no `default_agent` is set, `open-agent-in-devcontainer` exits with an error.
 
 ### `docker_path`
 

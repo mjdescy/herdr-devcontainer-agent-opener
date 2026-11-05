@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: dc-agent [agent] [agent args...]   (run from anywhere inside the project)
+# usage: open-agent-in-devcontainer [agent] [agent args...]   (run from anywhere inside the project)
 set -euo pipefail
 
 # configuration file path
@@ -35,7 +35,7 @@ main() {
 
 # Print an error message to stderr and abort the script with exit status 1.
 die() {
-  echo "dc-agent: $*" >&2
+  echo "open-agent-in-devcontainer: $*" >&2
   exit 1
 }
 

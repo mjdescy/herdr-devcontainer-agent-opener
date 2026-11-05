@@ -8,6 +8,26 @@ set -euo pipefail
 #   docker_path   - the container CLI passed to devcontainer as --docker-path
 config_file="$HOME/.config/herdr-devcontainer-agent-opener/config.toml"
 
+main() {
+  local default_agent agent workspace docker_args
+
+  # read agent
+  default_agent="$(read_config_value default_agent)"
+  agent="${1:-$default_agent}"; shift || true
+  [[ -n "$agent" ]] || die "no agent specified and no default_agent found in $config_file"
+  
+  # read workspace
+  workspace="$(find_workspace_folder)"
+  
+  # read docker command path
+  set_docker_args
+
+  # start the devcontainer and run the agent within it
+  devcontainer up ${docker_args[@]+"${docker_args[@]}"} --workspace-folder "$workspace" >/dev/null
+  HERDR_AGENT="$agent" exec devcontainer exec ${docker_args[@]+"${docker_args[@]}"} \
+    --workspace-folder "$workspace" "$agent" "$@"
+}
+
 # Print an error message to stderr and abort the script with exit status 1.
 die() {
   echo "dc-agent: $*" >&2
@@ -37,8 +57,9 @@ find_workspace_folder() {
   done
 }
 
-# Set the global docker_args array to the devcontainer CLI's --docker-path option,
-# or to an empty array when docker_path is not set in the config file.
+# Set the caller's docker_args array (dynamic scoping) to the devcontainer CLI's
+# --docker-path option, or to an empty array when docker_path is not set in the
+# config file.
 set_docker_args() {
   local docker_path
   docker_path="$(read_config_value docker_path)"
@@ -47,12 +68,4 @@ set_docker_args() {
   [[ -z "$docker_path" ]] || docker_args=(--docker-path "$docker_path")
 }
 
-default_agent="$(read_config_value default_agent)"
-agent="${1:-$default_agent}"; shift || true
-[[ -n "$agent" ]] || die "no agent specified and no default_agent found in $config_file"
-workspace="$(find_workspace_folder)"
-set_docker_args
-
-devcontainer up ${docker_args[@]+"${docker_args[@]}"} --workspace-folder "$workspace" >/dev/null
-HERDR_AGENT="$agent" exec devcontainer exec ${docker_args[@]+"${docker_args[@]}"} \
-  --workspace-folder "$workspace" "$agent" "$@"
+main "$@"

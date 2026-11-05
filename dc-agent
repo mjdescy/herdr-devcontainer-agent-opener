@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# usage: dc-agent [agent] [agent args...]   (run from the project root)
+set -euo pipefail
+agent="${1:-claude}"; shift || true
+devcontainer up --docker-path podman --workspace-folder . >/dev/null
+HERDR_AGENT="$agent" exec devcontainer exec --docker-path podman \
+  --workspace-folder . "$agent" "$@"

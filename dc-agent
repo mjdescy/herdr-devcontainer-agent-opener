@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: dc-agent [agent] [agent args...]   (run from the project root)
+# usage: dc-agent [agent] [agent args...]   (run from anywhere inside the project)
 set -euo pipefail
 
 # configuration file path
@@ -21,9 +21,24 @@ read_default_agent() {
   sed -nE 's/^[[:space:]]*default_agent[[:space:]]*=[[:space:]]*"([^"]*)".*/\1/p' "$config_file" | head -n 1
 }
 
+# Print the nearest directory, starting at the current one and walking up to /,
+# that holds a devcontainer config. Aborts if there is none.
+find_workspace_folder() {
+  local dir="$PWD"
+  while true; do
+    if [[ -f "$dir/.devcontainer/devcontainer.json" || -f "$dir/.devcontainer.json" ]]; then
+      printf '%s\n' "$dir"
+      return 0
+    fi
+    [[ "$dir" != "/" ]] || die "no devcontainer found in $PWD or any parent directory"
+    dir="$(dirname "$dir")"
+  done
+}
+
 default_agent="$(read_default_agent)"
 agent="${1:-$default_agent}"; shift || true
 [[ -n "$agent" ]] || die "no agent specified and no default_agent found in $config_file"
-devcontainer up --docker-path podman --workspace-folder . >/dev/null
+workspace="$(find_workspace_folder)"
+devcontainer up --docker-path podman --workspace-folder "$workspace" >/dev/null
 HERDR_AGENT="$agent" exec devcontainer exec --docker-path podman \
-  --workspace-folder . "$agent" "$@"
+  --workspace-folder "$workspace" "$agent" "$@"

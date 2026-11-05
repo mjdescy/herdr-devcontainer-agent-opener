@@ -6,6 +6,7 @@ set -euo pipefail
 # The configuration is a TOML file with these optional string keys:
 #   default_agent - the agent name/TUI command name used when none is given
 #   docker_path   - the container CLI passed to devcontainer as --docker-path
+#                   (a leading ~/ is expanded to $HOME)
 config_file="$HOME/.config/herdr-devcontainer-agent-opener/config.toml"
 
 main() {
@@ -38,13 +39,14 @@ die() {
   exit 1
 }
 
-# Print the string value of the given key from the config file.
-# Prints an empty string if the file is missing or the key is not set.
+# Print the string value of the given top-level key from the config file.
+# Values may be double- or single-quoted. Parsing stops at the first [table]
+# header. Prints an empty string if the file is missing or the key is not set.
 read_config_value() {
   local key="$1"
   [[ -f "$config_file" ]] || return 0
 
-  sed -nE "s/^[[:space:]]*$key[[:space:]]*=[[:space:]]*\"([^\"]*)\".*/\\1/p" "$config_file" | head -n 1
+  sed -nE "/^[[:space:]]*\[/q; s/^[[:space:]]*$key[[:space:]]*=[[:space:]]*(\"([^\"]*)\"|'([^']*)').*/\\2\\3/p" "$config_file" | head -n 1
 }
 
 # Print the nearest directory, starting at the current one and walking up to /,
@@ -67,6 +69,7 @@ find_workspace_folder() {
 set_docker_args() {
   local docker_path
   docker_path="$(read_config_value docker_path)"
+  docker_path="${docker_path/#\~\//$HOME/}"
 
   docker_args=()
   [[ -z "$docker_path" ]] || docker_args=(--docker-path "$docker_path")

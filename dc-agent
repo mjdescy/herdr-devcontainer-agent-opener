@@ -7,7 +7,7 @@ set -euo pipefail
 #   default_agent - the agent name/TUI command name used when none is given
 #   docker_path   - the container CLI passed to devcontainer as --docker-path
 #                   (a leading ~/ is expanded to $HOME)
-config_file="$HOME/.config/herdr-devcontainer-agent-opener/config.toml"
+config_file="${XDG_CONFIG_HOME:-$HOME/.config}/herdr-devcontainer-agent-opener/config.toml"
 
 main() {
   local default_agent agent workspace docker_args up_output

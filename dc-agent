@@ -3,8 +3,9 @@
 set -euo pipefail
 
 # configuration file path
-# The configuration is a TOML file with a single key/value pair named "default_agent".
-# The "default_agent" value is the agent name/TUI command name.
+# The configuration is a TOML file with these optional string keys:
+#   default_agent - the agent name/TUI command name used when none is given
+#   docker_path   - the container CLI passed to devcontainer as --docker-path
 config_file="$HOME/.config/herdr-devcontainer-agent-opener/config.toml"
 
 # Print an error message to stderr and abort the script with exit status 1.
@@ -13,12 +14,13 @@ die() {
   exit 1
 }
 
-# Print the value of default_agent from the config file.
+# Print the string value of the given key from the config file.
 # Prints an empty string if the file is missing or the key is not set.
-read_default_agent() {
+read_config_value() {
+  local key="$1"
   [[ -f "$config_file" ]] || return 0
 
-  sed -nE 's/^[[:space:]]*default_agent[[:space:]]*=[[:space:]]*"([^"]*)".*/\1/p' "$config_file" | head -n 1
+  sed -nE "s/^[[:space:]]*$key[[:space:]]*=[[:space:]]*\"([^\"]*)\".*/\\1/p" "$config_file" | head -n 1
 }
 
 # Print the nearest directory, starting at the current one and walking up to /,
@@ -35,10 +37,22 @@ find_workspace_folder() {
   done
 }
 
-default_agent="$(read_default_agent)"
+# Set the global docker_args array to the devcontainer CLI's --docker-path option,
+# or to an empty array when docker_path is not set in the config file.
+set_docker_args() {
+  local docker_path
+  docker_path="$(read_config_value docker_path)"
+
+  docker_args=()
+  [[ -z "$docker_path" ]] || docker_args=(--docker-path "$docker_path")
+}
+
+default_agent="$(read_config_value default_agent)"
 agent="${1:-$default_agent}"; shift || true
 [[ -n "$agent" ]] || die "no agent specified and no default_agent found in $config_file"
 workspace="$(find_workspace_folder)"
-devcontainer up --docker-path podman --workspace-folder "$workspace" >/dev/null
-HERDR_AGENT="$agent" exec devcontainer exec --docker-path podman \
+set_docker_args
+
+devcontainer up ${docker_args[@]+"${docker_args[@]}"} --workspace-folder "$workspace" >/dev/null
+HERDR_AGENT="$agent" exec devcontainer exec ${docker_args[@]+"${docker_args[@]}"} \
   --workspace-folder "$workspace" "$agent" "$@"

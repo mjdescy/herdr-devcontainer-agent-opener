@@ -15,14 +15,15 @@ This script relies on the following tools:
 1. [Herdr TUI][Prerequisites0]
 2. [Bash][Prerequisites1]
 3. [Devcontainer CLI][Prerequisites2]
-4. [Podman][Prerequisites3]
-5. [A supported coding agent][Prerequisites4] that is run from within the devcontainer
+4. A container engine supported by the devcontainer CLI, such as [Docker][Prerequisites3] or [Podman][Prerequisites4]
+5. [A supported coding agent][Prerequisites5] installed inside the devcontainer
 
 [Prerequisites0]: https://herdr.dev/tui/
 [Prerequisites1]: https://www.gnu.org/software/bash/ 
 [Prerequisites2]: https://github.com/devcontainers/cli/
-[Prerequisites3]: https://podman.io/
-[Prerequisites4]: https://herdr.dev/tui/docs/agents/
+[Prerequisites3]: https://www.docker.com/
+[Prerequisites4]: https://podman.io/
+[Prerequisites5]: https://herdr.dev/tui/docs/agents/
 
 ## How to use it
 
@@ -50,8 +51,27 @@ The script is a wrapper around the devcontainer CLI command used to start the de
 
 ## Optional configuration
 
-A default agent can be set in a configuration file. Setting one allows you to run the `dc-agent` command with no parameters. The path to the configuration file is `$HOME/.config/herdr-devcontainer-agent-opener/config.toml`. The file should consist of only one key/value pair, as follows:
+Settings can be placed in a configuration file at `$HOME/.config/herdr-devcontainer-agent-opener/config.toml`. The file is optional, and so is every key in it. Values must be double-quoted strings.
 
 ```toml
 default_agent = "opencode"
+docker_path = "podman"
 ```
+
+### `default_agent`
+
+The agent TUI command name to run when `dc-agent` is invoked with no agent name. Setting it allows you to run the `dc-agent` command with no parameters. An agent name given on the command line always takes precedence. If no agent name is given and no `default_agent` is set, `dc-agent` exits with an error.
+
+### `docker_path`
+
+The container CLI that the devcontainer CLI should use, passed to it as `--docker-path`. Set it if you use Podman or have a container CLI that is not `docker` on your `PATH`. The value can be a command name or a full path:
+
+```toml
+docker_path = "podman"
+```
+
+```toml
+docker_path = "/usr/local/bin/podman"
+```
+
+If `docker_path` is not set, `--docker-path` is not passed and the devcontainer CLI uses its default (`docker`).

@@ -9,7 +9,7 @@ set -euo pipefail
 config_file="$HOME/.config/herdr-devcontainer-agent-opener/config.toml"
 
 main() {
-  local default_agent agent workspace docker_args
+  local default_agent agent workspace docker_args up_output
 
   command -v devcontainer >/dev/null || die "devcontainer CLI not found in PATH"
 
@@ -25,7 +25,9 @@ main() {
   set_docker_args
 
   # start the devcontainer and run the agent within it
-  devcontainer up ${docker_args[@]+"${docker_args[@]}"} --workspace-folder "$workspace" >/dev/null
+  # (the CLI reports errors as JSON on stdout, so show its output on failure)
+  up_output="$(devcontainer up ${docker_args[@]+"${docker_args[@]}"} --workspace-folder "$workspace")" ||
+    { printf '%s\n' "$up_output" >&2; die "devcontainer up failed"; }
   HERDR_AGENT="$agent" exec devcontainer exec ${docker_args[@]+"${docker_args[@]}"} \
     --workspace-folder "$workspace" "$agent" "$@"
 }

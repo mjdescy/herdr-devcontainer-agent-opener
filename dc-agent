@@ -2,6 +2,9 @@
 # usage: dc-agent [agent] [agent args...]   (run from the project root)
 set -euo pipefail
 
+# configuration file path
+# The configuration is a TOML file with a single key/value pair named "default_agent".
+# The "default_agent" value is the agent name/TUI command name.
 config_file="$HOME/.config/herdr-devcontainer-agent-opener/config.toml"
 
 # Print an error message to stderr and abort the script with exit status 1.

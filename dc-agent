@@ -11,6 +11,8 @@ config_file="$HOME/.config/herdr-devcontainer-agent-opener/config.toml"
 main() {
   local default_agent agent workspace docker_args
 
+  command -v devcontainer >/dev/null || die "devcontainer CLI not found in PATH"
+
   # read agent
   default_agent="$(read_config_value default_agent)"
   agent="${1:-$default_agent}"; shift || true

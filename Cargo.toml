@@ -1,0 +1,11 @@
+[package]
+name = "open-agent-in-devcontainer"
+version = "0.1.0"
+edition = "2024"
+description = "Start a devcontainer and run a coding agent inside it from herdr"
+license-file = "LICENSE.md"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"

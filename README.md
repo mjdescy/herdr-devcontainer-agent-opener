@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This repository contains a script that can be used to enter a coding agent session within a [devcontainer][Purpose0] in [herdr TUI][Purpose1] and have its agent shown in herdr's [agents pane][Purpose2].
+This repository contains a program that can be used to enter a coding agent session within a [devcontainer][Purpose0] in [herdr TUI][Purpose1] and have its agent shown in herdr's [agents pane][Purpose2].
 
 [Purpose0]: https://containers.dev/
 [Purpose1]: https://herdr.dev/tui/
@@ -10,20 +10,28 @@ This repository contains a script that can be used to enter a coding agent sessi
 
 ## Prerequisites
 
-This script relies on the following tools:
+This program is written in Rust and relies on the following tools:
 
 1. [Herdr TUI][Prerequisites0]
-2. [Bash][Prerequisites1]
+2. [Rust and cargo][Prerequisites1] (to build and install it)
 3. [Devcontainer CLI][Prerequisites2]
 4. A container engine supported by the devcontainer CLI, such as [Docker][Prerequisites3] or [Podman][Prerequisites4]
 5. [A supported coding agent][Prerequisites5] installed inside the devcontainer
 
 [Prerequisites0]: https://herdr.dev/tui/
-[Prerequisites1]: https://www.gnu.org/software/bash/ 
+[Prerequisites1]: https://www.rust-lang.org/tools/install
 [Prerequisites2]: https://github.com/devcontainers/cli/
 [Prerequisites3]: https://www.docker.com/
 [Prerequisites4]: https://podman.io/
 [Prerequisites5]: https://herdr.dev/tui/docs/agents/
+
+## Installation
+
+```bash
+cargo install --path .
+```
+
+This installs the `open-agent-in-devcontainer` binary into `~/.cargo/bin`.
 
 ## How to use it
 
@@ -45,13 +53,13 @@ If no agent name is provided, the `open-agent-in-devcontainer` command will run 
 
 ## How it works
 
-The script is a wrapper around the devcontainer CLI command used to start the devcontainer and invoke the agent session. The wrapper script sets [the environment variable][HowItWorks0] `HERDR_AGENT` with the agent name.
+The program is a wrapper around the devcontainer CLI command used to start the devcontainer and invoke the agent session. The wrapper sets [the environment variable][HowItWorks0] `HERDR_AGENT` with the agent name.
 
 [HowItWorks0]: https://herdr.dev/tui/docs/agents/#vms-and-sandbox-wrappers
 
 ## Optional configuration
 
-Settings can be placed in a configuration file at `$HOME/.config/herdr-devcontainer-agent-opener/config.toml`. The file is optional, and so is every key in it. Values must be double-quoted strings.
+Settings can be placed in a configuration file at `$HOME/.config/herdr-devcontainer-agent-opener/config.toml`. The file is optional, and so is every key in it. Values must be quoted strings (double or single quotes).
 
 ```toml
 default_agent = "opencode"
